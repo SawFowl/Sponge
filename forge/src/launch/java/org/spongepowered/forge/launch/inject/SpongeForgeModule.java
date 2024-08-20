@@ -25,7 +25,9 @@
 package org.spongepowered.forge.launch.inject;
 
 import com.google.inject.AbstractModule;
-import net.minecraftforge.common.MinecraftForge;
+
+import net.neoforged.neoforge.common.NeoForge;
+
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.common.command.manager.SpongeCommandManager;
@@ -38,7 +40,7 @@ public final class SpongeForgeModule extends AbstractModule {
     @Override
     protected void configure() {
         this.bind(Platform.class).to(ForgePlatform.class);
-        this.bind(EventManager.class).toProvider(() -> (ForgeEventManager) MinecraftForge.EVENT_BUS);
+        this.bind(EventManager.class).toProvider(() -> (ForgeEventManager) NeoForge.EVENT_BUS);
         this.bind(SpongeCommandManager.class).to(ForgeCommandManager.class);
     }
 

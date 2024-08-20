@@ -26,31 +26,37 @@ package org.spongepowered.forge.applaunch.loading.moddiscovery;
 
 import cpw.mods.modlauncher.Environment;
 import cpw.mods.modlauncher.Launcher;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.loading.moddiscovery.AbstractModProvider;
-import net.minecraftforge.forgespi.locating.IDependencyLocator;
-import net.minecraftforge.forgespi.locating.IModFile;
-import net.minecraftforge.forgespi.locating.IModLocator;
+
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.moddiscovery.ModFile;
+import net.neoforged.neoforgespi.locating.IDependencyLocator;
+import net.neoforged.neoforgespi.locating.IDiscoveryPipeline;
+import net.neoforged.neoforgespi.locating.IModFile;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.spongepowered.forge.applaunch.loading.moddiscovery.library.LibraryManager;
 import org.spongepowered.forge.applaunch.transformation.SpongeForgeTransformationService;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 // works with ForgeProductionBootstrap to make this whole thing go
-public class SpongeForgeDependencyLocator extends AbstractModProvider implements IDependencyLocator {
+public class SpongeForgeDependencyLocator implements IDependencyLocator {
     private static final Logger LOGGER = LogManager.getLogger();
+    private final List<IModFile> modFiles = new ArrayList<>();
 
-    private LibraryManager libraryManager;
+    final Environment env = Launcher.INSTANCE.environment();
+    private LibraryManager libraryManager = new LibraryManager(
+        env.getProperty(SpongeForgeTransformationService.Keys.CHECK_LIBRARY_HASHES.get()).orElse(true),
+        env.getProperty(SpongeForgeTransformationService.Keys.LIBRARIES_DIRECTORY.get())
+            .orElseThrow(() -> new IllegalStateException("no libraries available")),
+        SpongeForgeModLocator.class.getResource("libraries.json"));
 
     @Override
-    public List<IModFile> scanMods(Iterable<IModFile> loadedMods) {
-        final List<IModFile> modFiles = new ArrayList<>();
-
+    public void scanMods(List<IModFile> loadedMods, IDiscoveryPipeline pipeline) {
         // Add Sponge-specific libraries
         if (FMLEnvironment.production) {
             try {
@@ -63,36 +69,14 @@ public class SpongeForgeDependencyLocator extends AbstractModProvider implements
             for (final LibraryManager.Library library : this.libraryManager.getAll().values()) {
                 final Path path = library.getFile();
                 SpongeForgeDependencyLocator.LOGGER.debug("Proposing jar {} as a game library", path);
-
-                final IModLocator.ModFileOrException fileOrException = createMod(path);
-                if (fileOrException.ex() != null) {
-                    throw fileOrException.ex();
-                }
-                modFiles.add(fileOrException.file());
+                ModFile mod = ModFileParsers.newPluginInstance(this, path);
+                modFiles.add(mod);
             }
         }
+    }
 
+    public  List<IModFile> getModFiles() {
         return modFiles;
     }
 
-    @Override
-    protected String getDefaultJarModType() {
-        return IModFile.Type.GAMELIBRARY.name();
-    }
-
-    @Override
-    public String name() {
-        return "spongeforge";
-    }
-
-    @Override
-    public void initArguments(final Map<String, ?> arguments) {
-        final Environment env = Launcher.INSTANCE.environment();
-        this.libraryManager = new LibraryManager(
-                env.getProperty(SpongeForgeTransformationService.Keys.CHECK_LIBRARY_HASHES.get()).orElse(true),
-                env.getProperty(SpongeForgeTransformationService.Keys.LIBRARIES_DIRECTORY.get())
-                        .orElseThrow(() -> new IllegalStateException("no libraries available")),
-                SpongeForgeModLocator.class.getResource("libraries.json")
-        );
-    }
 }

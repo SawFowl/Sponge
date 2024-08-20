@@ -25,21 +25,20 @@
 package org.spongepowered.forge;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Client;
@@ -53,21 +52,17 @@ import org.spongepowered.common.launch.Launch;
 import org.spongepowered.common.launch.Lifecycle;
 import org.spongepowered.common.network.channel.SpongeChannelManager;
 import org.spongepowered.common.network.packet.SpongePacketHandler;
-import org.spongepowered.forge.hook.ForgeChannelHooks;
-import org.spongepowered.forge.hook.ForgeEventHooks;
-import org.spongepowered.forge.hook.ForgeGeneralHooks;
-import org.spongepowered.forge.hook.ForgeItemHooks;
-import org.spongepowered.forge.hook.ForgeWorldHooks;
+import org.spongepowered.forge.hook.*;
 
-@Mod("spongeforge")
+@Mod("spongeneoforge")
 public final class SpongeForgeMod {
 
-    private final Logger logger = LogManager.getLogger("spongeforge");
+    private final Logger logger = LogManager.getLogger("SpongeNeoForge");
 
     public SpongeForgeMod() {
         // WorldPersistenceHooks.addHook(SpongeLevelDataPersistence.INSTANCE); // TODO SF 1.19.4
 
-        final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        final IEventBus modBus = NeoForge.EVENT_BUS;
 
         // modBus: add all FML events with it
         modBus.addListener(this::onCommonSetup);
@@ -76,7 +71,7 @@ public final class SpongeForgeMod {
         modBus.addListener(this::onEntityAttributeCreationEvent);
 
         // annotation events, for non-FML things
-        MinecraftForge.EVENT_BUS.register(this);
+        modBus.register(this);
 
         // Set platform hooks as required
         PlatformHooks.INSTANCE.setEventHooks(new ForgeEventHooks());
@@ -138,7 +133,7 @@ public final class SpongeForgeMod {
     }
 
     public void onRegister(RegisterEvent event) {
-        if (event.getRegistryKey() == ForgeRegistries.Keys.ENTITY_TYPES) {
+        if (event.getRegistryKey() == BuiltInRegistries.ENTITY_TYPE) {
             SpongeEntityTypes.HUMAN = EntityType.Builder.of(HumanEntity::new, MobCategory.MISC)
                     .noSave()
                     .sized(0.6F, 1.8F)
@@ -147,7 +142,7 @@ public final class SpongeForgeMod {
                     .build("sponge:human")
             ;
 
-            event.register(ForgeRegistries.Keys.ENTITY_TYPES, helper -> helper.register(HumanEntity.KEY, SpongeEntityTypes.HUMAN));
+            event.register(BuiltInRegistries.ENTITY_TYPE.key(), helper -> helper.register(HumanEntity.KEY, SpongeEntityTypes.HUMAN));
         }
     }
     public void onEntityAttributeCreationEvent(final EntityAttributeCreationEvent event) {

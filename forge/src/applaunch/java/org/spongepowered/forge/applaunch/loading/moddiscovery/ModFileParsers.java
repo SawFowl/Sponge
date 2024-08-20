@@ -25,13 +25,13 @@
 package org.spongepowered.forge.applaunch.loading.moddiscovery;
 
 import cpw.mods.jarhandling.SecureJar;
-import net.minecraftforge.fml.loading.moddiscovery.ModFile;
-import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
-import net.minecraftforge.fml.loading.moddiscovery.ModJarMetadata;
-import net.minecraftforge.forgespi.language.IModFileInfo;
-import net.minecraftforge.forgespi.locating.IModFile;
-import net.minecraftforge.forgespi.locating.IModLocator;
-import net.minecraftforge.forgespi.locating.ModFileFactory;
+
+import net.neoforged.fml.loading.moddiscovery.ModFile;
+import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
+import net.neoforged.fml.loading.moddiscovery.ModJarMetadata;
+import net.neoforged.neoforgespi.language.IModFileInfo;
+import net.neoforged.neoforgespi.locating.*;
+
 import org.spongepowered.common.applaunch.AppLaunch;
 import org.spongepowered.common.applaunch.plugin.PluginPlatformConstants;
 import org.spongepowered.forge.applaunch.loading.metadata.PluginFileConfigurable;
@@ -89,9 +89,20 @@ public final class ModFileParsers {
         }
     }
 
-    public static ModFile newPluginInstance(final IModLocator locator, final Path... path) {
+    public static ModFile newPluginInstance(final IModFileCandidateLocator locator, final Path... path) {
         ModJarMetadata mjm = newModJarMetadata();
-        ModFile modFile = (ModFile) ModFileFactory.FACTORY.build(SecureJar.from(jar -> mjm, path), locator, ModFileParsers::parsePluginMetadata);
+        ModFileInfoParser parser = ModFileParsers::parsePluginMetadata;
+
+        ModFile modFile = new ModFile(SecureJar.from(path), parser, ModFileDiscoveryAttributes.DEFAULT.withLocator(locator));
+        mjm.setModFile(modFile);
+        return modFile;
+    }
+
+    public static ModFile newPluginInstance(final IDependencyLocator locator, final Path... path) {
+        ModJarMetadata mjm = newModJarMetadata();
+        ModFileInfoParser parser = ModFileParsers::parsePluginMetadata;
+
+        ModFile modFile = new ModFile(SecureJar.from(path), parser, ModFileDiscoveryAttributes.DEFAULT.withDependencyLocator(locator));
         mjm.setModFile(modFile);
         return modFile;
     }

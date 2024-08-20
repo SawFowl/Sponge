@@ -26,7 +26,9 @@ package org.spongepowered.forge.applaunch.plugin;
 
 import cpw.mods.modlauncher.Environment;
 import cpw.mods.modlauncher.api.IEnvironment;
-import net.minecraftforge.fml.loading.FMLPaths;
+
+import net.neoforged.fml.loading.FMLPaths;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.common.applaunch.AppLaunch;

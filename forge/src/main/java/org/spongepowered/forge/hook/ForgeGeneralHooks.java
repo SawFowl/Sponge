@@ -26,6 +26,7 @@ package org.spongepowered.forge.hook;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.status.ServerStatus;
+
 import org.spongepowered.common.hooks.GeneralHooks;
 
 import java.util.Optional;
@@ -33,6 +34,6 @@ import java.util.Optional;
 public class ForgeGeneralHooks implements GeneralHooks {
 
     public ServerStatus createServerStatus(ServerStatus originalStatus, Component description, Optional<ServerStatus.Players> players, Optional<ServerStatus.Version> version, Optional<ServerStatus.Favicon> favicon) {
-        return new ServerStatus(description, players, version, favicon, originalStatus.enforcesSecureChat(), originalStatus.forgeData());
+        return new ServerStatus(description, players, version, favicon, originalStatus.enforcesSecureChat(), originalStatus.isModded());
     }
 }

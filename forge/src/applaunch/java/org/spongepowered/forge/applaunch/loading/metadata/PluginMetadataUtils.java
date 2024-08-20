@@ -24,8 +24,9 @@
  */
 package org.spongepowered.forge.applaunch.loading.metadata;
 
-import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
-import net.minecraftforge.forgespi.language.IModInfo;
+import net.neoforged.fml.loading.moddiscovery.ModInfo;
+import net.neoforged.neoforgespi.language.IModInfo;
+
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.builtin.StandardPluginMetadata;
 import org.spongepowered.plugin.metadata.builtin.model.StandardPluginContributor;

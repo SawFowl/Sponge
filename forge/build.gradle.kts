@@ -6,6 +6,9 @@ buildscript {
         maven("https://repo.spongepowered.org/repository/maven-public") {
             name = "sponge"
         }
+        maven("https://maven.neoforged.net/releases/") {
+            name = "neoforge"
+        }
         maven("https://maven.architectury.dev/")
     }
 }
@@ -21,7 +24,7 @@ val commonProject = parent!!
 val transformersProject = parent!!.project(":modlauncher-transformers")
 val apiVersion: String by project
 val minecraftVersion: String by project
-val forgeVersion: String by project
+val neoForgeVersion: String by project
 val recommendedVersion: String by project
 val organization: String by project
 val projectUrl: String by project
@@ -29,11 +32,14 @@ val projectUrl: String by project
 val testPluginsProject: Project? = rootProject.subprojects.find { "testplugins" == it.name }
 
 description = "The SpongeAPI implementation for MinecraftForge"
-version = spongeImpl.generatePlatformBuildVersionString(apiVersion, minecraftVersion, recommendedVersion, forgeVersion)
+version = spongeImpl.generatePlatformBuildVersionString(apiVersion, minecraftVersion, recommendedVersion, neoForgeVersion)
 
 repositories {
     maven("https://repo.spongepowered.org/repository/maven-public/") {
         name = "sponge"
+    }
+    maven("https://maven.neoforged.net/releases/") {
+        name = "neoforge"
     }
 }
 
@@ -158,8 +164,8 @@ extensions.configure(LoomGradleExtensionAPI::class) {
         useLegacyMixinAp.set(false)
     }
 
-    forge {
-        useCustomMixin.set(false)
+    neoForge {
+
     }
 
     mods {
@@ -186,7 +192,7 @@ extensions.configure(LoomGradleExtensionAPI::class) {
 
 dependencies {
     "minecraft"("com.mojang:minecraft:${minecraftVersion}")
-    "forge"("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
+    "neoForge"("net.neoforged:neoforge:$neoForgeVersion")
     "mappings"(loom.layered {
         officialMojangMappings {
             nameSyntheticMembers = true
@@ -249,7 +255,7 @@ val forgeManifest = java.manifest {
             "Specification-Vendor" to "SpongePowered",
             "Specification-Version" to apiVersion,
             "Implementation-Title" to project.name,
-            "Implementation-Version" to spongeImpl.generatePlatformBuildVersionString(apiVersion, minecraftVersion, recommendedVersion, forgeVersion),
+            "Implementation-Version" to spongeImpl.generatePlatformBuildVersionString(apiVersion, minecraftVersion, recommendedVersion, neoForgeVersion),
             "Implementation-Vendor" to "SpongePowered"
     )
     // These two are included by most CI's

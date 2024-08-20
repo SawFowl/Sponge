@@ -25,7 +25,7 @@
 package org.spongepowered.forge.launch;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.spongepowered.common.launch.mapping.SpongeMappingManager;
 
 import java.util.Map;

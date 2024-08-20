@@ -24,13 +24,15 @@
  */
 package org.spongepowered.forge.lang.provider;
 
-import cpw.mods.modlauncher.api.LamdbaExceptionUtils;
-import net.minecraftforge.fml.Logging;
-import net.minecraftforge.fml.ModLoadingStage;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLanguageProvider;
-import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.forgespi.language.IModLanguageProvider;
-import net.minecraftforge.forgespi.language.ModFileScanData;
+import cpw.mods.util.LambdaExceptionUtils;
+import net.neoforged.fml.Logging;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.ModLoadingException;
+import net.neoforged.fml.javafmlmod.FMLJavaModLanguageProvider;
+import net.neoforged.neoforgespi.language.IModInfo;
+import net.neoforged.neoforgespi.language.IModLanguageLoader;
+import net.neoforged.neoforgespi.language.ModFileScanData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
@@ -56,7 +58,7 @@ public final class JavaPluginLanguageProvider extends FMLJavaModLanguageProvider
     public String name() {
         return "java_plain";
     }
-
+/*
     @Override
     public Consumer<ModFileScanData> getFileVisitor() {
         return scanResult -> {
@@ -67,9 +69,9 @@ public final class JavaPluginLanguageProvider extends FMLJavaModLanguageProvider
                     .collect(Collectors.toMap(PluginTarget::getPlugin, Function.identity(), (a,b)->a));
             scanResult.addLanguageLoader(modTargetMap);
         };
-    }
+    }*/
 
-    private static final class PluginTarget implements IModLanguageProvider.IModLanguageLoader {
+    private static final class PluginTarget implements IModLanguageLoader {
 
         private final Logger logger;
         private final String className;
@@ -82,7 +84,7 @@ public final class JavaPluginLanguageProvider extends FMLJavaModLanguageProvider
         }
 
         @Override
-        public <T> T loadMod(final IModInfo info, final ModFileScanData modFileScanData, final ModuleLayer gameLayer) {
+        public ModContainer loadMod(final IModInfo info, final ModFileScanData modFileScanData, final ModuleLayer gameLayer) {
             // The following is adapted from FMLJavaModLanguageProvider.FMLModTarget
 
             // This language class is loaded in the system level classloader - before the game even starts
@@ -93,30 +95,40 @@ public final class JavaPluginLanguageProvider extends FMLJavaModLanguageProvider
                         "org.spongepowered.forge.launch.plugin.PluginModContainer", true, Thread.currentThread().getContextClassLoader());
                 this.logger.debug(Logging.LOADING, "Loading PluginModContainer from classloader {} - got {}", Thread.currentThread().getContextClassLoader(), pluginContainer.getClassLoader());
                 final Constructor<?> constructor = pluginContainer.getConstructor(IModInfo.class, String.class, ModFileScanData.class, ModuleLayer.class);
-                return (T) constructor.newInstance(info, className, modFileScanData, gameLayer);
+                return (ModContainer) constructor.newInstance(info, className, modFileScanData, gameLayer);
             }
             // ALL exception handling has to be done through the classloader, because we're loaded in the wrong context, so any classes we just blind load will be in the wrong
             // class loading context. Funky but works.
             catch (final InvocationTargetException e) {
                 this.logger.fatal(Logging.LOADING, "Failed to build plugin", e);
-                final Class<RuntimeException> mle = (Class<RuntimeException>) LamdbaExceptionUtils.uncheck(()->Class.forName("net.minecraftforge.fml.ModLoadingException", true, Thread.currentThread().getContextClassLoader()));
+                final Class<RuntimeException> mle = (Class<RuntimeException>) LambdaExceptionUtils.uncheck(()->Class.forName("net.neoforged.fml.ModLoadingException", true, Thread.currentThread().getContextClassLoader()));
                 if (mle.isInstance(e.getTargetException())) {
                     throw mle.cast(e.getTargetException());
                 } else {
-                    final Class<ModLoadingStage> mls = (Class<ModLoadingStage>) LamdbaExceptionUtils.uncheck(()->Class.forName("net.minecraftforge.fml.ModLoadingStage", true, Thread.currentThread().getContextClassLoader()));
-                    throw LamdbaExceptionUtils.uncheck(()->LamdbaExceptionUtils.uncheck(()->mle.getConstructor(IModInfo.class, mls, String.class, Throwable.class)).newInstance(info, Enum.valueOf(mls, "CONSTRUCT"), "fml.modloading.failedtoloadmodclass", e));
+                    final Class<ModLoadingContext> mls = (Class<ModLoadingContext>) LambdaExceptionUtils.uncheck(()->Class.forName("net.neoforged.fml.ModLoadingContext", true, Thread.currentThread().getContextClassLoader()));
+                    throw LambdaExceptionUtils.uncheck(()->LambdaExceptionUtils.uncheck(()->mle.getConstructor(IModInfo.class, mls, String.class, Throwable.class)).newInstance(info, mls, "fml.modloading.failedtoloadmodclass", e));
                 }
             }
             catch (final NoSuchMethodException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 this.logger.fatal(Logging.LOADING,"Unable to load PluginModContainer, excuse me?", e);
-                final Class<RuntimeException> mle = (Class<RuntimeException>)LamdbaExceptionUtils.uncheck(()->Class.forName("net.minecraftforge.fml.ModLoadingException", true, Thread.currentThread().getContextClassLoader()));
-                final Class<ModLoadingStage> mls = (Class<ModLoadingStage>) LamdbaExceptionUtils.uncheck(()->Class.forName("net.minecraftforge.fml.ModLoadingStage", true, Thread.currentThread().getContextClassLoader()));
-                throw LamdbaExceptionUtils.uncheck(()->LamdbaExceptionUtils.uncheck(()->mle.getConstructor(IModInfo.class, mls, String.class, Throwable.class)).newInstance(info, Enum.valueOf(mls, "CONSTRUCT"), "fml.modloading.failedtoloadmodclass", e));
+                final Class<RuntimeException> mle = (Class<RuntimeException>)LambdaExceptionUtils.uncheck(()->Class.forName("net.neoforged.fml.ModLoadingException", true, Thread.currentThread().getContextClassLoader()));
+                final Class<ModLoadingContext> mls = (Class<ModLoadingContext>) LambdaExceptionUtils.uncheck(()->Class.forName("net.neoforged.fml.ModLoadingContext", true, Thread.currentThread().getContextClassLoader()));
+                throw LambdaExceptionUtils.uncheck(()->LambdaExceptionUtils.uncheck(()->mle.getConstructor(IModInfo.class, mls, String.class, Throwable.class)).newInstance(info, mls, "fml.modloading.failedtoloadmodclass", e));
             }
         }
 
         public String getPlugin() {
             return this.plugin;
+        }
+
+        @Override
+        public String name() {
+            return "";
+        }
+
+        @Override
+        public String version() {
+            return "";
         }
     }
 }

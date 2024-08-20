@@ -25,8 +25,8 @@
 package org.spongepowered.forge.launch.plugin;
 
 import com.google.common.collect.MapMaker;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.loading.moddiscovery.ModInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.common.launch.Launch;
@@ -46,6 +46,7 @@ public class ForgePluginContainer implements PluginContainer {
 
     private Logger logger;
     private PluginMetadata pluginMetadata;
+    private Object instance; // Find a way to get the instance of a plugin/mod from NeoForge
 
     ForgePluginContainer(final ModContainer modContainer) {
         this.modContainer = modContainer;
@@ -75,7 +76,7 @@ public class ForgePluginContainer implements PluginContainer {
     public Optional<URI> locateResource(URI relative) {
         Objects.requireNonNull(relative, "relative");
 
-        final ClassLoader classLoader = this.modContainer.getMod().getClass().getClassLoader();
+        final ClassLoader classLoader = this.modContainer.getClass().getClassLoader();
         final URL resolved = classLoader.getResource(relative.getPath());
         try {
             if (resolved == null) {
@@ -89,7 +90,7 @@ public class ForgePluginContainer implements PluginContainer {
 
     @Override
     public Object instance() {
-        return this.modContainer.getMod();
+        return instance;
     }
 
     private static final Map<ModContainer, ForgePluginContainer> containers = new MapMaker().weakKeys().makeMap();

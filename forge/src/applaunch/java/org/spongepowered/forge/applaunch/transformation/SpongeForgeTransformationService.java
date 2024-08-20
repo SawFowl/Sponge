@@ -27,15 +27,13 @@ package org.spongepowered.forge.applaunch.transformation;
 import cpw.mods.jarhandling.SecureJar;
 import cpw.mods.modlauncher.Environment;
 import cpw.mods.modlauncher.Launcher;
-import cpw.mods.modlauncher.api.IEnvironment;
-import cpw.mods.modlauncher.api.IModuleLayerManager;
-import cpw.mods.modlauncher.api.ITransformationService;
-import cpw.mods.modlauncher.api.ITransformer;
-import cpw.mods.modlauncher.api.TypesafeMap;
+import cpw.mods.modlauncher.api.*;
+
 import joptsimple.OptionSpec;
 import joptsimple.OptionSpecBuilder;
-import net.minecraftforge.fml.loading.LoadingModList;
-import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
+
+import net.neoforged.fml.loading.LoadingModList;
+import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -140,10 +138,8 @@ public class SpongeForgeTransformationService implements ITransformationService 
         return List.of();
     }
 
-    @NonNull
     @Override
-    @SuppressWarnings("rawtypes") // :)
-    public List<ITransformer> transformers() {
+    public List<? extends ITransformer<?>> transformers() {
         return List.of(new ListenerTransformer());
     }
 
