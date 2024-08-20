@@ -93,6 +93,22 @@ if (spongeForgeEnabledInCi.toBoolean()) {
     include(":SpongeForge")
     project(":SpongeForge").projectDir = file("forge")
 }
+val spongeNeoForge = file("spongeneoforge.settings.gradle.kts")
+if (spongeNeoForge.exists()) {
+    apply(from = spongeNeoForge)
+} else {
+    spongeNeoForge.writeText(listOf(
+        "// Uncomment to enable SpongeForge module.",
+        "// By default only Sponge and SpongeVanilla are made available",
+        "//include(\":SpongeNeoForge\")",
+        "//project(\":SpongeNeoForge\").projectDir = file(\"neoforge\")"
+    ).joinToString(separator = System.lineSeparator(), postfix = System.lineSeparator()))
+}
+val spongeNeoForgeEnabledInCi: String = startParameter.projectProperties.getOrDefault("enableSpongeNeoForge", "true")
+if (spongeForgeEnabledInCi.toBoolean()) {
+    include(":SpongeNeoForge")
+    project(":SpongeNeoForge").projectDir = file("neoforge")
+}
 
 // Include properties from API project (with api prefix)
 val apiProps = file("SpongeAPI/gradle.properties")
