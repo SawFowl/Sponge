@@ -24,9 +24,7 @@
  */
 package org.spongepowered.forge.launch.bridge.event;
 
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.IEventBusInvokeDispatcher;
-import net.minecraftforge.eventbus.api.IEventListener;
+import net.neoforged.bus.api.Event;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Collection;
@@ -51,9 +49,11 @@ public interface SpongeEventBridge_Forge {
      * this given event, it can be defined here.
      *
      * @return The dispatcher to use.
+     *
+     * IEventBusInvokeDispatcher REMOVED IN NEOFORGE!
      */
-    default IEventBusInvokeDispatcher bridge$eventDispatcher() {
-        return IEventListener::invoke;
-    }
+    /*default IEventBusInvokeDispatcher bridge$eventDispatcher() {
+        return EventListener::invoke;
+    }*/
 
 }

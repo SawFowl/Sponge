@@ -24,28 +24,18 @@
  */
 package org.spongepowered.forge.applaunch.transformation;
 
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.RETURN;
-
-import cpw.mods.modlauncher.api.ITransformer;
-import cpw.mods.modlauncher.api.ITransformerActivity;
-import cpw.mods.modlauncher.api.ITransformerVotingContext;
-import cpw.mods.modlauncher.api.TransformerVoteResult;
-import net.minecraftforge.fml.loading.LoadingModList;
-import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
-import net.minecraftforge.forgespi.language.ModFileScanData;
+import cpw.mods.modlauncher.api.*;
+import net.neoforged.fml.loading.LoadingModList;
+import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
+import net.neoforged.neoforgespi.language.ModFileScanData;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.objectweb.asm.Opcodes.*;
 
 public class ListenerTransformer implements ITransformer<ClassNode> {
 
@@ -83,9 +73,8 @@ public class ListenerTransformer implements ITransformer<ClassNode> {
         return context.getReason().equals(ITransformerActivity.CLASSLOADING_REASON) ? TransformerVoteResult.YES : TransformerVoteResult.NO;
     }
 
-    @NonNull
     @Override
-    public Set<Target> targets() {
+    public Set<Target<ClassNode>> targets() {
         final Type listenerType = Type.getType("Lorg/spongepowered/api/event/Listener;");
 
         final Set<Type> listenerClasses = new HashSet<>();
@@ -97,10 +86,15 @@ public class ListenerTransformer implements ITransformer<ClassNode> {
             }
         }
 
-        final Set<Target> targets = new HashSet<>();
+        final Set<Target<ClassNode>> targets = new HashSet<>();
         for (Type listener : listenerClasses) {
             targets.add(Target.targetClass(listener.getInternalName()));
         }
         return targets;
+    }
+
+    @Override
+    public TargetType<ClassNode> getTargetType() {
+        return TargetType.CLASS;
     }
 }

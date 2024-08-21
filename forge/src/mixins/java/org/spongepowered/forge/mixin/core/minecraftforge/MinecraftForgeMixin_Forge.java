@@ -24,21 +24,21 @@
  */
 package org.spongepowered.forge.mixin.core.minecraftforge;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.BusBuilderImpl;
-import net.minecraftforge.eventbus.api.BusBuilder;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.neoforged.bus.BusBuilderImpl;
+import net.neoforged.bus.api.BusBuilder;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.forge.launch.event.ForgeEventManager;
 import org.spongepowered.forge.launch.event.SpongeEventBus;
 
-@Mixin(MinecraftForge.class)
+@Mixin(NeoForge.class)
 public abstract class MinecraftForgeMixin_Forge {
 
     @Redirect(method = "<clinit>", at = @At(value = "INVOKE",
-            target = "Lnet/minecraftforge/eventbus/api/BusBuilder;build()Lnet/minecraftforge/eventbus/api/IEventBus;", remap = false))
+            target = "Lnet/neoforged/bus/api/BusBuilder;build()Lnet/neoforged/bus/api/IEventBus;", remap = false))
     private static IEventBus forge$substituteForgeEventBus(final BusBuilder builder) {
         return new ForgeEventManager(new SpongeEventBus((BusBuilderImpl) builder));
     }

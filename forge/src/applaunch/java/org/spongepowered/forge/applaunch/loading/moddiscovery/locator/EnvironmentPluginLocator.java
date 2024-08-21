@@ -24,8 +24,12 @@
  */
 package org.spongepowered.forge.applaunch.loading.moddiscovery.locator;
 
-import net.minecraftforge.fml.loading.moddiscovery.AbstractModProvider;
-import net.minecraftforge.forgespi.locating.IModLocator;
+import net.neoforged.fml.javafmlmod.FMLJavaModLanguageProvider;
+import net.neoforged.neoforgespi.ILaunchContext;
+import net.neoforged.neoforgespi.language.ModFileScanData;
+import net.neoforged.neoforgespi.locating.IDiscoveryPipeline;
+import net.neoforged.neoforgespi.locating.IModFileCandidateLocator;
+
 import org.spongepowered.forge.applaunch.loading.moddiscovery.ModFileParsers;
 
 import java.nio.file.Path;
@@ -35,20 +39,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public final class EnvironmentPluginLocator extends AbstractModProvider implements IModLocator {
+public final class EnvironmentPluginLocator extends FMLJavaModLanguageProvider implements IModFileCandidateLocator {
 
     @Override
-    public List<ModFileOrException> scanMods() {
-        final List<ModFileOrException> modFiles = new ArrayList<>();
+    public void findCandidates(ILaunchContext context, IDiscoveryPipeline pipeline) {
+        for(Path[] arrayPaths : getPluginsPaths()) for(Path path : arrayPaths) context.addLocated(path);
+        scanMods().forEach(scan -> {
+            scan.getIModInfoData().forEach(file -> {
+                pipeline.addModFile(file.getFile());
+                context.addLocated(file.getFile().getFilePath());
+            });
+        });
+    }
+
+    //@Override
+    public List<ModFileScanData> scanMods() {
+        final List<ModFileScanData> modFiles = new ArrayList<>();
         for (final Path[] paths : getPluginsPaths()) {
-            modFiles.add(new ModFileOrException(ModFileParsers.newPluginInstance(this, paths), null));
+        	ModFileScanData data = new ModFileScanData();
+        	data.addModFileInfo(ModFileParsers.newPluginInstance(this, paths).getModFileInfo());
         }
         return modFiles;
     }
 
-    @Override
-    protected ModFileOrException createMod(Path path) {
-        return new ModFileOrException(ModFileParsers.newPluginInstance(this, path), null);
+    //@Override
+    protected ModFileScanData createMod(Path path) {
+    	ModFileScanData data = new ModFileScanData();
+    	data.addModFileInfo(ModFileParsers.newPluginInstance(this, path).getModFileInfo());
+        return data;
     }
 
     @Override
@@ -56,7 +74,7 @@ public final class EnvironmentPluginLocator extends AbstractModProvider implemen
         return "environment plugin";
     }
 
-    @Override
+    //@Override
     public void initArguments(final Map<String, ?> arguments) {
     }
 

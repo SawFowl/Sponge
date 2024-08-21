@@ -26,9 +26,11 @@ package org.spongepowered.forge.launch.plugin;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Singleton;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
 import org.spongepowered.common.launch.plugin.SpongePluginManager;
 import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -40,7 +42,10 @@ public final class ForgePluginManager implements SpongePluginManager {
 
     @Override
     public Optional<PluginContainer> fromInstance(final Object instance) {
-        return ModList.get().getModContainerByObject(Objects.requireNonNull(instance, "instance")).map(ForgePluginContainer::of);
+        Objects.requireNonNull(instance, "instance");
+        if(instance.getClass().isAnnotationPresent(Plugin.class)) return plugin(instance.getClass().getAnnotation(Plugin.class).value());
+        if(instance.getClass().isAnnotationPresent(Mod.class)) return plugin(instance.getClass().getAnnotation(Mod.class).value());
+        return Optional.empty();
     }
 
     @Override

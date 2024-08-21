@@ -24,13 +24,14 @@
  */
 package org.spongepowered.forge.hook;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.ForgePayload;
+
 import org.spongepowered.api.network.EngineConnectionSide;
 import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.common.hooks.ChannelHooks;
@@ -48,9 +49,9 @@ public final class ForgeChannelHooks implements ChannelHooks {
     @Override
     public Packet<?> createRegisterPayload(final ChannelBuf payload, final EngineConnectionSide<?> side) {
         if (side == EngineConnectionSide.CLIENT) {
-            return new ServerboundCustomPayloadPacket(new ForgePayload((ResourceLocation) (Object) Constants.Channels.REGISTER_KEY, null, b -> b.writeBytes((FriendlyByteBuf) payload)));
+            return ServerboundCustomPayloadPacket.CONFIG_STREAM_CODEC.decode(new FriendlyByteBuf(Unpooled.buffer()).writeResourceLocation((ResourceLocation) (Object) Constants.Channels.REGISTER_KEY).writeBytes(payload.array()));
         } else if (side == EngineConnectionSide.SERVER) {
-            return new ClientboundCustomPayloadPacket(new ForgePayload((ResourceLocation) (Object) Constants.Channels.REGISTER_KEY, null, b -> b.writeBytes((FriendlyByteBuf) payload)));
+            return ClientboundCustomPayloadPacket.CONFIG_STREAM_CODEC.decode(new FriendlyByteBuf(Unpooled.buffer()).writeResourceLocation((ResourceLocation) (Object) Constants.Channels.REGISTER_KEY).writeBytes(payload.array()));
         } else {
             throw new UnsupportedOperationException();
         }

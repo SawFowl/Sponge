@@ -24,18 +24,8 @@
  */
 package org.spongepowered.forge.launch.event;
 
-import net.minecraftforge.eventbus.BusBuilderImpl;
-import net.minecraftforge.eventbus.EventBus;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.IEventBusInvokeDispatcher;
-import net.minecraftforge.eventbus.api.IEventExceptionHandler;
-import net.minecraftforge.eventbus.api.IEventListener;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.spongepowered.api.event.CauseStackManager;
-import org.spongepowered.common.event.manager.SpongeEventManager;
-import org.spongepowered.common.event.tracking.PhaseContext;
-import org.spongepowered.common.event.tracking.PhaseTracker;
+import net.neoforged.bus.*;
+import net.neoforged.bus.api.*;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -103,48 +93,6 @@ public final class SpongeEventBus extends EventBus {
             throw new RuntimeException(ex);
         }
         // Sponge End
-    }
-
-    @Override
-    public boolean post(final Event event, final IEventBusInvokeDispatcher wrapper) {
-        // @formatter:off
-
-        // Sponge - use the builder/member fields. Avoids reflection but remains very hacky...
-        if (this.rshutdown) return false;
-        if (this.rcheckTypesOnDispatch && !rbaseType.isInstance(event))
-        {
-            throw new IllegalArgumentException("Cannot post event of type " + event.getClass().getSimpleName() + " to this event. Must match type: " + this.rbaseType.getSimpleName());
-        }
-
-        IEventListener[] listeners = event.getListenerList().getListeners(this.rbusID);
-        int index = 0;
-        for (; index < listeners.length; index++)
-        {
-            final IEventListener listener = listeners[index];
-            if (!this.rtrackPhases && Objects.equals(listener.getClass(), EventPriority.class)) continue;
-
-            try (
-                final CauseStackManager.StackFrame frame = PhaseTracker.getCauseStackManager().pushCauseFrame();
-                final PhaseContext<@NonNull ?> context = SpongeEventManager.createListenerContext(null))
-            {
-                if (context != null) {
-                    context.buildAndSwitch();
-                }
-
-                wrapper.invoke(listener, event);
-            } catch (final Throwable t) {
-                this.rexceptionHandler.handleException(this, event, listeners, index, t);
-            }
-        }
-        return event.isCancelable() && event.isCanceled();
-
-        // @formatter:on
-    }
-
-    @Override
-    public void shutdown() {
-        super.shutdown();
-        this.rshutdown = true;
     }
 
     @Override

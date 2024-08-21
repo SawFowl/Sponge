@@ -24,14 +24,20 @@
  */
 package org.spongepowered.forge.applaunch.loading.moddiscovery.locator;
 
-import cpw.mods.modlauncher.api.LamdbaExceptionUtils;
-import net.minecraftforge.fml.loading.ModDirTransformerDiscoverer;
-import net.minecraftforge.fml.loading.StringUtils;
-import net.minecraftforge.fml.loading.moddiscovery.AbstractModProvider;
-import net.minecraftforge.fml.loading.moddiscovery.ModFile;
-import net.minecraftforge.forgespi.locating.IModLocator;
+import cpw.mods.util.LambdaExceptionUtils;
+
+import net.neoforged.fml.javafmlmod.FMLJavaModLanguageProvider;
+import net.neoforged.fml.loading.ModDirTransformerDiscoverer;
+import net.neoforged.fml.loading.StringUtils;
+import net.neoforged.fml.loading.moddiscovery.ModFile;
+import net.neoforged.neoforgespi.ILaunchContext;
+import net.neoforged.neoforgespi.language.ModFileScanData;
+import net.neoforged.neoforgespi.locating.IDiscoveryPipeline;
+import net.neoforged.neoforgespi.locating.IModFileCandidateLocator;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.spongepowered.common.applaunch.AppLaunch;
 import org.spongepowered.forge.applaunch.loading.moddiscovery.ModFileParsers;
 
@@ -43,26 +49,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public final class PluginsDirectoryLocator extends AbstractModProvider implements IModLocator {
+public final class PluginsDirectoryLocator extends FMLJavaModLanguageProvider implements IModFileCandidateLocator {
     private static final Logger LOGGER = LogManager.getLogger();
 
+    final List<ModFileScanData> modFiles = new ArrayList<>();
+
     @Override
-    public List<ModFileOrException> scanMods() {
+    public void findCandidates(ILaunchContext context, IDiscoveryPipeline pipeline) {
         final List<Path> pluginDirectories = AppLaunch.pluginPlatform().pluginDirectories();
 
-        final List<ModFileOrException> modFiles = new ArrayList<>();
-
-        for (final Path pluginDirectory : pluginDirectories) {
-            PluginsDirectoryLocator.LOGGER.debug("Scanning plugins directory '{}' for plugins", pluginDirectory);
-            this.scanForModsIn(pluginDirectory).map((f) -> new ModFileOrException(f, null)).forEach(modFiles::add);
+        for (final Path paths : pluginDirectories) {
+            this.scanForModsIn(paths).forEach(this::addData);
         }
+    }
 
+    public List<ModFileScanData> getScanData() {
         return modFiles;
     }
 
     private Stream<ModFile> scanForModsIn(final Path pluginsDirectory) {
+
         final List<Path> excluded = ModDirTransformerDiscoverer.allExcluded();
-        return LamdbaExceptionUtils.uncheck(() -> Files.list(pluginsDirectory))
+        return LambdaExceptionUtils.uncheck(() -> Files.list(pluginsDirectory))
             .filter((p) -> !excluded.contains(p) && StringUtils.toLowerCase(p.getFileName().toString()).endsWith(".jar"))
             .sorted(Comparator.comparing((path) -> StringUtils.toLowerCase(path.getFileName().toString())))
             .map((p) -> ModFileParsers.newPluginInstance(this, p))
@@ -74,7 +82,13 @@ public final class PluginsDirectoryLocator extends AbstractModProvider implement
         return "plugins directory";
     }
 
-    @Override
+    //@Override
     public void initArguments(final Map<String, ?> arguments) {
+    }
+
+    private void addData(ModFile modFile) {
+        ModFileScanData data = new ModFileScanData();
+        data.addModFileInfo(modFile.getModFileInfo());
+        modFiles.add(data);
     }
 }

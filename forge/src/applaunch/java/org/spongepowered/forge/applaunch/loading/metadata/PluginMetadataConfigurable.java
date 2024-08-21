@@ -24,7 +24,8 @@
  */
 package org.spongepowered.forge.applaunch.loading.metadata;
 
-import net.minecraftforge.forgespi.language.IConfigurable;
+import net.neoforged.neoforgespi.language.IConfigurable;
+
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.util.Collections;
