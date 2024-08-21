@@ -26,8 +26,8 @@ package org.spongepowered.forge.mixin.core.server.commands;
 
 import net.minecraft.server.commands.SpreadPlayersCommand;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.cause.entity.MovementTypes;
@@ -41,13 +41,13 @@ public abstract class SpreadPlayersCommandMixin_Forge {
 
     @Redirect(method = "setPlayerPositions", at = @At(
         value = "INVOKE",
-        target = "Lnet/minecraftforge/event/ForgeEventFactory;onEntityTeleportSpreadPlayersCommand(Lnet/minecraft/world/entity/Entity;DDD)Lnet/minecraftforge/event/entity/EntityTeleportEvent$SpreadPlayersCommand;"
+        target = "Lnet/neoforged/neoforge/event/EventHooks;onEntityTeleportSpreadPlayersCommand(Lnet/minecraft/world/entity/Entity;DDD)Lnet/neoforged/neoforge/event/entity/EntityTeleportEvent$SpreadPlayersCommand;"
     ))
     private static EntityTeleportEvent.SpreadPlayersCommand vanilla$createCauseFrameForTeleport(Entity entity, double targetX, double targetY, double targetZ) {
         try (final CauseStackManager.StackFrame frame = PhaseTracker.getCauseStackManager().pushCauseFrame()) {
             frame.addContext(EventContextKeys.MOVEMENT_TYPE, MovementTypes.COMMAND);
 
-            return ForgeEventFactory.onEntityTeleportSpreadPlayersCommand(entity, targetX, targetY, targetZ);
+            return EventHooks.onEntityTeleportSpreadPlayersCommand(entity, targetX, targetY, targetZ);
         }
     }
 }

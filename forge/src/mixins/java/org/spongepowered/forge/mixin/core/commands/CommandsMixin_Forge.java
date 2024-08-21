@@ -31,9 +31,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.server.command.CommandHelper;
+import net.neoforged.neoforge.event.CommandEvent;
+import net.neoforged.neoforge.server.command.CommandHelper;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.EventContextKeys;
@@ -59,8 +58,8 @@ public abstract class CommandsMixin_Forge {
 
     // The event fired by Forge is fired in SpongeForgeCommandManager at the appropriate time.
     @Redirect(method = "performCommand",
-        at = @At(value = "INVOKE", target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"))
-    private boolean forge$redirectToSpongeCommandManager(IEventBus instance, Event event) {
+        at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/event/CommandEvent;isCanceled()Z"))
+    private boolean forge$redirectToSpongeCommandManager(CommandEvent event) {
         return false;
     }
 
@@ -68,7 +67,7 @@ public abstract class CommandsMixin_Forge {
     @SuppressWarnings("unchecked")
     @Redirect(method = "sendCommands", at = @At(
         value = "INVOKE",
-        target = "Lnet/minecraftforge/server/command/CommandHelper;mergeCommandNode(Lcom/mojang/brigadier/tree/CommandNode;Lcom/mojang/brigadier/tree/CommandNode;Ljava/util/Map;Ljava/lang/Object;Lcom/mojang/brigadier/Command;Ljava/util/function/Function;)V",
+        target = "Lnet/neoforged/neoforge/server/command/CommandHelper;mergeCommandNode(Lcom/mojang/brigadier/tree/CommandNode;Lcom/mojang/brigadier/tree/CommandNode;Ljava/util/Map;Ljava/lang/Object;Lcom/mojang/brigadier/Command;Ljava/util/function/Function;)V",
         remap = false
     ))
     private <S, T> void impl$addNonBrigSuggestions(
