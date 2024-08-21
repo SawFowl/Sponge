@@ -25,10 +25,9 @@
 package org.spongepowered.forge.mixin.core.minecraftforge.registries;
 
 import com.google.common.collect.Maps;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistry;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -45,7 +44,11 @@ import org.spongepowered.common.registry.SpongeRegistryType;
 import java.util.Map;
 import java.util.StringJoiner;
 
-@Mixin(ForgeRegistry.class)
+// TODO
+// IForgeRegistry -> IRegistryExtension
+// ForgeRegistry -> BaseMappedRegistry, также имеет некоторую реализацию в ванильном MappedRegistry
+// Хрен пойми, нужен ли этот миксин вообще. Я так и не смог понять, на что заменили SlaveMap (и заменили ли вообще)
+@Mixin(MappedRegistry.class)//@Mixin(ForgeRegistry.class)
 public abstract class ForgeRegistryMixin_Forge<V> {
 
     // @formatter:off
@@ -55,7 +58,7 @@ public abstract class ForgeRegistryMixin_Forge<V> {
     private final Map<ResourceKey, RegistryBridge<V>> forge$parents = Maps.newHashMap();
     private boolean forge$warnedIfNoParent;
 
-    @Inject(method = "add(ILnet/minecraft/resources/ResourceLocation;Ljava/lang/Object;Ljava/lang/String;)I", at = @At("TAIL"))
+    /*@Inject(method = "add(ILnet/minecraft/resources/ResourceLocation;Ljava/lang/Object;Ljava/lang/String;)I", at = @At("TAIL"))
     public void forge$writeToParent(final int id, final ResourceLocation key, final V value, final String owner, final CallbackInfoReturnable<Integer> cir) {
         final ResourceKey root = (ResourceKey) (Object) this.key.registry();
         final ResourceKey location = (ResourceKey) (Object) this.key.location();
@@ -83,6 +86,6 @@ public abstract class ForgeRegistryMixin_Forge<V> {
         if (obj instanceof RegistryBridge) {
             this.forge$parents.put((ResourceKey) (Object) key.name(), (RegistryBridge<V>) obj);
         }
-    }
+    }*/
 
 }

@@ -25,7 +25,7 @@
 package org.spongepowered.forge.mixin.core.minecraftforge.event.world;
 
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
@@ -57,14 +57,14 @@ public abstract class BlockEvent_BreakEventMixin_Forge extends BlockEventMixin_F
                             .stream()
                             .filter(x -> x.original().position().equals(pos))
                             .anyMatch(x -> !x.isValid() || x.operation() != Operations.BREAK.get() || x.custom().isPresent())) {
-                ((net.minecraftforge.eventbus.api.Event) (Object) this).setCanceled(true);
+                ((BlockEvent.BreakEvent) (Object) this).setCanceled(true);
             }
         }
     }
 
     @Override
     public void bridge$syncTo(final Event event) {
-        if (event instanceof ChangeBlockEvent.All && ((net.minecraftforge.eventbus.api.Event) (Object) this).isCanceled()) {
+        if (event instanceof ChangeBlockEvent.All && ((BlockEvent.BreakEvent) (Object) this).isCanceled()) {
             final Vector3i pos = VecHelper.toVector3i(this.shadow$getPos());
             ((ChangeBlockEvent.All) event).transactions(Operations.BREAK.get()).filter(x -> x.original().position().equals(pos))
                     .forEach(x -> x.setValid(false));

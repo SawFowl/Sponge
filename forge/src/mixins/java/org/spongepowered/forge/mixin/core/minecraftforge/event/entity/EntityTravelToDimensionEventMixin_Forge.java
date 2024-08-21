@@ -28,8 +28,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.neoforged.neoforge.event.entity.EntityEvent;
+import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.SpongeEventFactory;
@@ -52,7 +52,7 @@ public abstract class EntityTravelToDimensionEventMixin_Forge implements ForgeEv
     @Override
     public void bridge$syncFrom(final Event event) {
         if (event instanceof ChangeEntityWorldEvent.Pre) {
-            ((net.minecraftforge.eventbus.api.Event) (Object) this).setCanceled(((ChangeEntityWorldEvent.Pre) event).isCancelled());
+            ((EntityTravelToDimensionEvent) (Object) this).setCanceled(((ChangeEntityWorldEvent.Pre) event).isCancelled());
             this.dimension = ((ServerLevel) ((ChangeEntityWorldEvent.Pre) event).destinationWorld()).dimension();
         }
     }
@@ -60,7 +60,7 @@ public abstract class EntityTravelToDimensionEventMixin_Forge implements ForgeEv
     @Override
     public void bridge$syncTo(final Event event) {
         if (event instanceof ChangeEntityWorldEvent.Pre) {
-            ((ChangeEntityWorldEvent.Pre) event).setCancelled(((net.minecraftforge.eventbus.api.Event) (Object) this).isCanceled());
+            ((ChangeEntityWorldEvent.Pre) event).setCancelled(((EntityTravelToDimensionEvent) (Object) this).isCanceled());
         }
     }
 

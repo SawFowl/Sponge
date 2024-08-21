@@ -24,7 +24,7 @@
  */
 package org.spongepowered.forge.mixin.core.minecraftforge.internal;
 
-import net.minecraftforge.internal.BrandingControl;
+import net.neoforged.neoforge.internal.BrandingControl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 

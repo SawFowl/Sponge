@@ -26,7 +26,8 @@ package org.spongepowered.forge.mixin.core.world.entity;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.common.ForgeHooks;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -49,16 +50,18 @@ public abstract class LivingEntityMixin_Forge implements PlatformLivingEntityBri
 
     @Override
     public boolean bridge$onLivingAttack(final LivingEntity entity, final DamageSource source, final float amount) {
-        return ForgeHooks.onLivingAttack(entity, source, amount);
+        return CommonHooks.onEntityIncomingDamage(entity, new DamageContainer(source, amount));
     }
 
     @Override
     public float bridge$applyModDamage(final LivingEntity entity, final DamageSource source, final float damage) {
-        return ForgeHooks.onLivingHurt(entity, source, damage);
+        return CommonHooks.onLivingDamagePre(entity, new DamageContainer(source, damage));
     }
 
     @Override
     public float bridge$applyModDamageBeforeFunctions(final LivingEntity entity, final DamageSource source, final float damage) {
-        return ForgeHooks.onLivingDamage(entity, source, damage);
+        // TODO This was
+        //  return ForgeHooks.onLivingDamage(entity, source, damage);
+        return damage;
     }
 }

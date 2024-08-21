@@ -186,6 +186,8 @@ extensions.configure(LoomGradleExtensionAPI::class) {
 
     // Arch-loom bug, skip broken union-relauncher
     runs.forEach {
+        // TODO find replacement
+        // net.minecraft.client.main.Main ? mcp.client.Start ?
         it.mainClass.set("net.minecraftforge.bootstrap.ForgeBootstrap")
     }
 }
