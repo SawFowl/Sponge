@@ -25,8 +25,8 @@
 package org.spongepowered.forge.mixin.core.minecraftforge.registries;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
+import net.neoforged.neoforge.registries.RegistryManager;
+import net.neoforged.neoforge.registries.RegistrySnapshot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -39,13 +39,13 @@ public class RegistryManagerMixin_Forge {
 
     @SuppressWarnings("UnstableApiUsage")
     @Inject(method = "takeSnapshot", at = @At("RETURN"))
-    public void forge$dontSendSpongeDataToClient(boolean savingToDisc, CallbackInfoReturnable<Map<ResourceLocation, ForgeRegistry.Snapshot>> cir) {
-        if (savingToDisc) {
+    public void forge$dontSendSpongeDataToClient(RegistryManager.SnapshotType snapshotType, CallbackInfoReturnable<Map<ResourceLocation, RegistrySnapshot>> cir) {
+        if (snapshotType == RegistryManager.SnapshotType.FULL) {
             return;
         }
 
-        for (ForgeRegistry.Snapshot snapshot : cir.getReturnValue().values()) {
-            snapshot.ids.keySet().removeIf(loc -> loc.getNamespace().equals("sponge"));
+        for (RegistrySnapshot snapshot : cir.getReturnValue().values()) {
+            snapshot.getIds().values().removeIf(loc -> loc.getNamespace().equals("sponge"));
         }
     }
 }
