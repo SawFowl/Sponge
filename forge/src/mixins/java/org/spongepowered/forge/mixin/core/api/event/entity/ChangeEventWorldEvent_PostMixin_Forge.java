@@ -26,8 +26,8 @@ package org.spongepowered.forge.mixin.core.api.event.entity;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.event.entity.ChangeEntityWorldEvent;
 import org.spongepowered.asm.mixin.Mixin;

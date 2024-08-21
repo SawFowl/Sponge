@@ -27,7 +27,8 @@ package org.spongepowered.forge.hook;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 import org.spongepowered.common.hooks.EventHooks;
 
@@ -38,17 +39,14 @@ public final class ForgeEventHooks implements EventHooks {
     public void callItemDestroyedEvent(
         final Player player, final ItemStack stack, final InteractionHand hand
     ) {
-        ForgeEventFactory.onPlayerDestroyItem(player, stack, InteractionHand.MAIN_HAND);
+        net.neoforged.neoforge.event.EventHooks.onPlayerDestroyItem(player, stack, InteractionHand.MAIN_HAND);
     }
 
     @Override
     public CriticalHitResult callCriticalHitEvent(
         final Player player, final Entity targetEntity, final boolean isCriticalAttack, final float v
     ) {
-        final CriticalHitEvent hitResult = ForgeHooks.getCriticalHit(player, targetEntity, isCriticalAttack, v + 1.0F);
-        if (hitResult != null) {
-            return new CriticalHitResult(true, hitResult.getDamageMultiplier() - 1.0F);
-        }
-        return new CriticalHitResult(false, v);
+        final CriticalHitEvent hitResult = CommonHooks.fireCriticalHit(player, targetEntity, isCriticalAttack, v + 1.0F);
+        return new CriticalHitResult(hitResult.isCriticalHit(), hitResult.getDamageMultiplier() - 1.0F);
     }
 }
