@@ -18,6 +18,7 @@
         "neoforge.internal.BrandingControlMixin_Neo",
         "neoforge.registries.GameDataMixin_Neo",
         "neoforge.registries.RegistryManagerMixin_Neo",
+        "neoforge.registries.NetworkRegistryMixin_Neo",
         "network.ConnectionMixin_Neo",
         "network.protocol.common.ClientboundCustomPayloadPacketMixin_Neo",
         "network.protocol.common.ServerboundCustomPayloadPacketMixin_Neo",
